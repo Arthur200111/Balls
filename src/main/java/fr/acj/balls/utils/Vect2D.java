@@ -34,6 +34,10 @@ public class Vect2D {
         return new Vect2D(this.x - v.getX(), this.y - v.getY());
     }
 
+    public Vect2D addi(Vect2D v) {
+        return new Vect2D(this.x + v.getX(), this.y + v.getY());
+    }
+
     public double scal(Vect2D v) {
         return v.getX() * this.x + v.getY() * this.y;
     }

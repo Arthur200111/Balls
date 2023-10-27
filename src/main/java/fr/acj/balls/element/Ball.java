@@ -18,10 +18,10 @@ public class Ball {
 
     public Ball() {
         Random rand = new Random();
-        this.pos = new Vect2D(rand.nextDouble()*SimulationPanel.WIDTH, rand.nextDouble()*SimulationPanel.HEIGHT);
+        this.pos = new Vect2D(rand.nextDouble() * SimulationPanel.WIDTH, rand.nextDouble() * SimulationPanel.HEIGHT);
         this.v = new Vect2D(rand.nextDouble(), rand.nextDouble());
         this.v.normalise();
-        this.v.multiply(rand.nextDouble()*600);
+        this.v.multiply(rand.nextDouble() * 600);
         this.r = rand.nextInt(50);
 
         float red = rand.nextFloat();
@@ -37,55 +37,78 @@ public class Ball {
         this.color = color;
     }
 
-    public Vect2D checkBorders(List<Line> borders, Vect2D newPos) {
+    public void borderCollision(Line border) {
+        // normalize the normal vector of the border
+        Vect2D n = border.getNormalVector();
+        Vect2D m = border.getPointFromLine();
+        // Verification that the normal vector points towards the previous point of the
+        // ball
+        if (n.scal(this.pos.substr(m)) < 0) {
+            // Not the good direction, change n to its opposite
+            n.multiply(-1);
+        }
+        n.normalise();
+
+        // Get the parallel line of the border at a distance of the radius of the ball
+        Vect2D k = new Vect2D(m.getX() + this.r * n.getX(), m.getY() + this.r * n.getY());
+        Line symLine = new Line(n.getX(), n.getY(), -n.getX() * k.getX() - n.getY() * k.getY());
+
+        // The good position is symmetrical of the precedent position computed
+        this.pos = symLine.getPointOfSymmetry(this.pos);
+
+        // Change of the velocity vector
+        this.v = symLine.getReflectionVector(this.v);
+
+    }
+
+    public void checkBorders(List<Line> borders) {
         double d;
-        Vect2D n, m, k;
-        Line symLine;
         for (Line border : borders) {
             // Check distance between border and ball
-            d = newPos.dist(border);
+            d = this.pos.dist(border);
 
             // if distance ok no calculations, go to next border
             if (d > r) {
                 continue;
             }
 
-            // normalize the normal vector of the border
-            n = border.getNormalVector();
-            m = border.getPointFromLine();
-            // Verification that the normal vector points towards the previous point of the
-            // ball
-            if (n.scal(this.pos.substr(m)) < 0) {
-                // Not the good direction, change n to its opposite
-                n.multiply(-1);
-            }
-            n.normalise();
-
-            // Get the parallel line of the border at a distance of the radius of the ball
-            k = new Vect2D(m.getX() + this.r * n.getX(), m.getY() + this.r * n.getY());
-            symLine = new Line(n.getX(), n.getY(), -n.getX() * k.getX() - n.getY() * k.getY());
-
-            // The good position is symmetrical of the precedent position computed
-            newPos = symLine.getPointOfSymmetry(newPos);
-
-            // Change of the velocity vector
-            this.v = symLine.getReflectionVector(this.v);
+            this.borderCollision(border);
         }
-        return newPos;
     }
 
-    public Vect2D move(double deltaT) {
-        return new Vect2D(deltaT * v.getX() + pos.getX(), deltaT * v.getY() + pos.getY());
+    public void move(double deltaT) {
+        this.pos.setX(deltaT * v.getX() + pos.getX());
+        this.pos.setY(deltaT * v.getY() + pos.getY());
     }
 
-    public void update(double deltaT, List<Line> borders) {
-        Vect2D newPos = this.move(deltaT);
-        newPos = this.checkBorders(borders, newPos);
-        this.pos = newPos;
+    public void collisionWithAnotherBall(Ball ball, double d) {
+        double a = (this.r*this.r-ball.getR()*ball.getR()+d*d)/(2*d);
+        Vect2D u = ball.getPos().substr(this.pos);
+        u.normalise();
+        u.multiply(a);
+
+        Vect2D I = this.pos.addi(u);
+        Vect2D J = new Vect2D(I.getX() + u.getY(), I.getY() - u.getX());
+        
+        try {
+            Line border = new Line(I, J);
+            this.borderCollision(border);
+            ball.borderCollision(border);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     public void draw(Graphics2D g2) {
         g2.setColor(this.color);
         g2.fillOval((int) this.pos.getX() - this.r, (int) this.pos.getY() - this.r, 2 * this.r, 2 * this.r);
+    }
+
+    public Vect2D getPos() {
+        return this.pos;
+    }
+
+    public int getR() {
+        return this.r;
     }
 }

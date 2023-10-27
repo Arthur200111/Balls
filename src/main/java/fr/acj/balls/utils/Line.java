@@ -20,14 +20,9 @@ public class Line {
         if (m1.equals(m2)) {
             throw new SamePonintException();
         }
-        if (m1.getX() == m2.getX()) {
-            this.b = 0.;
-            this.a = 1.;
-        } else {
-            this.b = 1.;
-            this.a = this.b * (m1.getY() - m2.getY()) / (m2.getX() - m1.getX());
-        }
-        this.c = -this.a * m1.getX() - this.b * m1.getY();
+        this.a = m2.getY() - m1.getY();
+        this.b = m1.getX() - m2.getX();
+        this.c = m2.getX() * m1.getY() - m2.getY() * m1.getX();
     }
 
     public Vect2D getPointOfSymmetry(Vect2D p) {

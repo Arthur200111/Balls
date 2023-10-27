@@ -22,7 +22,7 @@ public class SimulationPanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.setFocusable(true);
 
-        this.simu = new Simulation();
+        this.simu = new Simulation(20);
     }
 
     public void startSimulatorThread() {
