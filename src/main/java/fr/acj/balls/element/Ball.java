@@ -3,7 +3,9 @@ package fr.acj.balls.element;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.List;
+import java.util.Random;
 
+import fr.acj.balls.simulation.SimulationPanel;
 import fr.acj.balls.utils.Line;
 
 import fr.acj.balls.utils.Vect2D;
@@ -12,11 +14,27 @@ public class Ball {
     private Vect2D v;
     private Vect2D pos;
     private int r;
+    private Color color;
 
     public Ball() {
-        this.v = new Vect2D(200, 500);
-        this.pos = new Vect2D(500, 250);
-        this.r = 10;
+        Random rand = new Random();
+        this.pos = new Vect2D(rand.nextDouble()*SimulationPanel.WIDTH, rand.nextDouble()*SimulationPanel.HEIGHT);
+        this.v = new Vect2D(rand.nextDouble(), rand.nextDouble());
+        this.v.normalise();
+        this.v.multiply(rand.nextDouble()*600);
+        this.r = rand.nextInt(50);
+
+        float red = rand.nextFloat();
+        float green = rand.nextFloat();
+        float blue = rand.nextFloat();
+        this.color = new Color(red, green, blue);
+    }
+
+    public Ball(Vect2D v, Vect2D pos, int r, Color color) {
+        this.v = v;
+        this.pos = pos;
+        this.r = r;
+        this.color = color;
     }
 
     public Vect2D checkBorders(List<Line> borders, Vect2D newPos) {
@@ -67,7 +85,7 @@ public class Ball {
     }
 
     public void draw(Graphics2D g2) {
-        g2.setColor(Color.red);
+        g2.setColor(this.color);
         g2.fillOval((int) this.pos.getX() - this.r, (int) this.pos.getY() - this.r, 2 * this.r, 2 * this.r);
     }
 }

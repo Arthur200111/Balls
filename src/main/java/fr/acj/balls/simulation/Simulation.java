@@ -14,7 +14,9 @@ public class Simulation {
 
     public Simulation() {
         this.balls = new LinkedList<>();
-        this.balls.add(new Ball());
+        for (int i = 0; i<20; i++) {
+            this.balls.add(new Ball());
+        }
 
         Vect2D a = new Vect2D(0,0);
         Vect2D b = new Vect2D(SimulationPanel.WIDTH,0);
@@ -27,7 +29,6 @@ public class Simulation {
             this.borders.add(new Line(b, c));
             this.borders.add(new Line(c, d));
             this.borders.add(new Line(d, a));
-            this.borders.add(new Line(d, b));
         } catch (Exception e) {
             System.out.println(e);
         }
